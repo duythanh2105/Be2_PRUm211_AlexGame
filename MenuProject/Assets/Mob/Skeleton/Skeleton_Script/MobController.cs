@@ -5,23 +5,27 @@ using UnityEngine;
 
 public class MobController : MonoBehaviour
 {
+    public Transform mobAttackPoint;
     public Animator animator;
     public Transform player;
     public float walkDistance = 10f;
     public float walkSpeed = 2f;
     public float attackDistance = 2f;
+    public float MobAttackRange = 1.3f;
+    public int mobAttackDamage = 10;
+    public LayerMask playerLayers;
 
     private bool rebornToIdleComplete;
     private bool canMove = true;
 
-    public int maxHealth = 100;
-    int currentHealth;
+    public int maxMobHealth = 100;
+    int currenMobtHealth;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        currentHealth = maxHealth;
+        currenMobtHealth = maxMobHealth;
     }
 
     void Update()
@@ -54,6 +58,12 @@ public class MobController : MonoBehaviour
                 canMove = false;
                 animator.SetBool("IsWalking", false);
                 animator.SetTrigger("ToAttack");
+                Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(mobAttackPoint.position, MobAttackRange, playerLayers);
+                foreach (Collider2D character in hitPlayer)
+                {
+                    character.GetComponent<PlayerController>().TakeDamage(mobAttackDamage);
+                    Debug.Log("Attack cua boss voi " + character.name);
+                }
             }
             else
             {
@@ -74,11 +84,20 @@ public class MobController : MonoBehaviour
         return rebornToIdleComplete = true;
     }
 
+    //attack point
+    private void OnDrawGizmosSelected()
+    {
+        if (mobAttackPoint == null) return;
+        Gizmos.DrawWireSphere(mobAttackPoint.position, mobAttackDamage);
+    }
+
+
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
+        Debug.Log("Damage cua boss");
+        currenMobtHealth -= damage;
         animator.SetTrigger("Hurt");
-        if (currentHealth <= 0)
+        if (currenMobtHealth <= 0)
         {
             Die();
         }

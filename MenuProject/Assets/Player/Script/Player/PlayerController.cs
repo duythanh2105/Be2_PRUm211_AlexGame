@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     private float xAxis;
     public float attackRange = 0.5f;
     public int attackDamage = 40;
+    public int maxPlayerHealth = 150;
+    int currentPlayerHealth;
     public LayerMask enemyLayers;
 
     const string PLAYER_IDLE = "Player_Idle";
@@ -30,11 +32,14 @@ public class PlayerController : MonoBehaviour
     const string PLAYER_JUMP = "Player_Jumping";
     const string PLAYER_Falling = "Player_Falling";
     const string PLAYER_ATTACK = "Player_Attack";
+    const string PLAYER_HURT = "Player_Hurt";
+    const string PLAYER_DEAD = "Player_Dead";
 
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        currentPlayerHealth = maxPlayerHealth;
     }
 
     void Update()
@@ -106,8 +111,11 @@ public class PlayerController : MonoBehaviour
                     Collider2D[] hitEnimies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
                     foreach (Collider2D enemy in hitEnimies)
                     {
+                        Debug.Log("we hit " + enemy.name);
                         enemy.GetComponent<MobController>().TakeDamage(attackDamage);
                     }
+
+
                 }
                 Invoke("AttackComplete", attackDelay);
             }
@@ -148,11 +156,16 @@ public class PlayerController : MonoBehaviour
     }
 
     //attack point
-    private void OnDrawGizmosSelected()
-    {
-        if (attackPoint == null) return;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-    }
+  private void OnDrawGizmosSelected()
+{
+    if (attackPoint == null) return;
+
+    // Đặt màu gizmo
+    Gizmos.color = Color.red;
+
+    // Vẽ hình tròn tại attackPoint với attackRange
+    Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+}
 
     void JumpFall()
     {
@@ -171,6 +184,28 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsFalling", true);
             animator.SetBool("IsJumping", false);
         }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Debug.Log("damage: " + damage);
+        currentPlayerHealth -= damage;
+        Debug.Log("currentPlayerHealth: " + currentPlayerHealth);
+        ChangeAnimationState(PLAYER_HURT);
+        if (currentPlayerHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        // animator.SetBool("IsDie", true);
+        ChangeAnimationState(PLAYER_DEAD);
+        GetComponent<Collider2D>().enabled = false;
+        this.enabled = false;
+        // GetComponent<SpriteRenderer>().enabled = false;
+        Debug.Log("Player die");
     }
 
 }
