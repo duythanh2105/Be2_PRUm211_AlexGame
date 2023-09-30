@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private bool isAttackPressed;
     private bool isAttacking;
     public bool isGrounded;
+    public bool isJump;
     private float xAxis;
     public float attackRange = 0.5f;
     public int attackDamage = 40;
@@ -38,12 +39,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        Debug.Log("Ground: " + isGrounded);
+
         xAxis = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb2d.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            ChangeAnimationState(PLAYER_JUMP);
             isJumpPressed = true;
         }
 
@@ -51,6 +52,7 @@ public class PlayerController : MonoBehaviour
         {
             isAttackPressed = true;
         }
+        JumpFall();
     }
 
     private void FixedUpdate()
@@ -79,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (isGrounded && !isAttacking)
+        if (isGrounded && !isAttacking && !isJumpPressed)
         {
             if (xAxis != 0)
             {
@@ -91,12 +93,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (isJumpPressed && isGrounded)
-        {
-            ChangeAnimationState(PLAYER_JUMP);
-            rb2d.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            isJumpPressed = false;
-        }
 
         if (isAttackPressed)
         {
@@ -120,17 +116,20 @@ public class PlayerController : MonoBehaviour
         rb2d.velocity = vel;
     }
 
+    //check attack complete
     void AttackComplete()
     {
         isAttacking = false;
     }
 
+    //change animation
     void ChangeAnimationState(string newAnimation)
     {
         if (animator.GetCurrentAnimatorStateInfo(0).IsName(newAnimation)) return;
         animator.Play(newAnimation);
     }
 
+    //check Ground
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.tag == "Ground")
@@ -139,6 +138,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //check Ground
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject.tag == "Ground")
@@ -147,9 +147,30 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected() {
+    //attack point
+    private void OnDrawGizmosSelected()
+    {
         if (attackPoint == null) return;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
+
+    void JumpFall()
+    {
+        if (isJumpPressed && isGrounded)
+        {
+            Debug.Log("Press Jump" + isJumpPressed);
+            // ChangeAnimationState(PLAYER_JUMP);
+            rb2d.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            animator.SetBool("IsJumping", true);
+            isJumpPressed = false;
+        }
+        if (!isGrounded)
+        {
+            // Debug.Log("Press Jump: " + isJumpPressed);
+            Debug.Log("Ground falling: " + isGrounded);
+            animator.SetBool("IsFalling", true);
+            animator.SetBool("IsJumping", false);
+        }
     }
 
 }

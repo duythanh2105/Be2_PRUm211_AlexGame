@@ -86,9 +86,10 @@ public class MobController : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Enemy die");
-        animator.SetBool("IsDead", true);
+        // animator.SetBool("IsDie", true);
         GetComponent<Collider2D>().enabled = false;
         this.enabled = false;
+        GetComponent<SpriteRenderer>().enabled = false;
+        Debug.Log("Enemy die");
     }
 }
