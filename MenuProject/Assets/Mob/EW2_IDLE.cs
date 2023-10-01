@@ -6,6 +6,8 @@ public class EW2_IDLE : StateMachineBehaviour
 {
     // Reference to the Animator component
     private Animator animator;
+    private GameObject player;
+    private float detectionRange = 20f;
 
     // Start is called on the first frame of the animation
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -16,11 +18,23 @@ public class EW2_IDLE : StateMachineBehaviour
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        // Check if there is a game object appearing (you can replace this condition with your own)
-        if (GameObject.FindGameObjectWithTag("Player") != null)
+        if (player == null)
         {
-            // Transition to the "RUN" animation state
-            animator.SetTrigger("Move"); // "RunTrigger" should be a parameter in your Animator Controller
+            // Tìm game object có tag "Player"
+            player = GameObject.FindGameObjectWithTag("Player");
+        }
+
+        if (player != null)
+        {
+            // Tính khoảng cách giữa animator và player
+            float distanceToPlayer = Vector3.Distance(animator.transform.position, player.transform.position);
+
+            // Nếu khoảng cách nhỏ hơn hoặc bằng detectionRange
+            if (distanceToPlayer <= detectionRange)
+            {
+                // Kích hoạt animation "Run"
+                animator.SetTrigger("Move"); // "Move" là tên parameter trigger trong Animator Controller
+            }
         }
     }
 
