@@ -201,7 +201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8596503289051611455}
   m_Layer: 0
-  m_Name: Mobs 1
+  m_Name: Skeleton_sub
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
