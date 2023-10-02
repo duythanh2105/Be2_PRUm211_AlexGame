@@ -1,341 +1,211 @@
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class PlayerController : MonoBehaviour
-{
-    [SerializeField]
-    private float walkSpeed = 9f;
-    [SerializeField]
-    private float jumpForce = 850;
-    [SerializeField]
-    private float attackDelay = 0.3f;
-
-    private Animator animator;
-    private Rigidbody2D rb2d;
-    private bool isJumpPressed;
-    private bool isAttackPressed;
-    private bool isAttacking;
-    private bool isGrounded;
-
-    const string PLAYER_IDLE = "Player_Idle";
-    const string PLAYER_RUN = "Player_Run";
-    const string PLAYER_JUMP = "Player_Jumping";
-    const string PLAYER_ATTACK = "Player_Attack";
-
-    void Start()
-    {
-        rb2d = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
-    }
-
-    void Update()
-    {
-        float xAxis = Input.GetAxisRaw("Horizontal");
-        isJumpPressed = Input.GetKeyDown(KeyCode.Space);
-        isAttackPressed = Input.GetKeyDown(KeyCode.RightControl);
-
-        if (xAxis != 0)
-        {
-            transform.localScale = new Vector2(Mathf.Sign(xAxis), 1);
-        }
-
-        if (isJumpPressed)
-        {
-            rb2d.AddForce(new Vector2(0, jumpForce));
-            ChangeAnimationState(PLAYER_JUMP);
-            Debug.Log("Jumping");
-            isJumpPressed = false;
-        }
-        // else if (isAttackPressed)
-        // {
-        //     ChangeAnimationState(PLAYER_ATTACK);
-        //     isAttacking = true;
-        //     Invoke("AttackComplete", attackDelay);
-        // }
-        else if (Mathf.Abs(xAxis) > 0.1f)
-        {
-            ChangeAnimationState(PLAYER_RUN);
-            Debug.Log("Running");
-        }
-        // else
-        // {
-        //     ChangeAnimationState(PLAYER_IDLE);
-        //     Debug.Log("Idle");
-
-        // }
-    }
-
-    void FixedUpdate()
-    {
-        float xAxis = Input.GetAxisRaw("Horizontal");
-        Vector2 vel = new Vector2(xAxis * walkSpeed, rb2d.velocity.y);
-        rb2d.velocity = vel;
-
-        // check isGround
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, LayerMask.GetMask("Ground"));
-        Debug.DrawLine(transform.position, transform.position + Vector3.down * 0.1f, Color.red);
-        isGrounded = (hit.collider != null);
-        Debug.Log(isGrounded);
-    }
-
-    void AttackComplete()
-    {
-        isAttacking = false;
-    }
-
-    void ChangeAnimationState(string newAnimation)
-    {
-        if (animator.GetCurrentAnimatorStateInfo(0).IsName(newAnimation)) return;
-        animator.Play(newAnimation);
-    }
-
-}
-
-
-
-
-
+// using System.Collections;
+// using System.Collections.Generic;
+// using UnityEngine;
 
 // public class PlayerController : MonoBehaviour
 // {
 //     [SerializeField]
 //     private float walkSpeed = 9f;
 //     [SerializeField]
-//     private float jumpForce = 850;
+//     private float jumpForce = 10f;
 //     [SerializeField]
-//     private float attackDelay = 0.3f;
+//     private float attackDelay = 0.7f;
 
+//     public Transform attackPoint;
 //     private Animator animator;
 //     private Rigidbody2D rb2d;
 //     private bool isJumpPressed;
 //     private bool isAttackPressed;
 //     private bool isAttacking;
+//     public bool isGrounded;
+//     public bool isJump;
+//     private float xAxis;
+//     public float attackRange = 0.5f;
+//     public int attackDamage = 40;
+//     public int maxPlayerHealth = 150;
+//     int currentPlayerHealth;
+//     public LayerMask enemyLayers;
 
 //     const string PLAYER_IDLE = "Player_Idle";
 //     const string PLAYER_RUN = "Player_Run";
 //     const string PLAYER_JUMP = "Player_Jumping";
+//     const string PLAYER_Falling = "Player_Falling";
 //     const string PLAYER_ATTACK = "Player_Attack";
+//     const string PLAYER_HURT = "Player_Hurt";
+//     const string PLAYER_DEAD = "Player_Dead";
 
 //     void Start()
 //     {
 //         rb2d = GetComponent<Rigidbody2D>();
 //         animator = GetComponent<Animator>();
+//         currentPlayerHealth = maxPlayerHealth;
 //     }
 
 //     void Update()
 //     {
-//         float xAxis = Input.GetAxisRaw("Horizontal");
-//         isJumpPressed = Input.GetKeyDown(KeyCode.Space);
-//         isAttackPressed = Input.GetKeyDown(KeyCode.RightControl);
+//         Debug.Log("Ground: " + isGrounded);
 
-//         if (xAxis != 0)
+//         xAxis = Input.GetAxisRaw("Horizontal");
+
+//         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
 //         {
-//             transform.localScale = new Vector2(Mathf.Sign(xAxis), 1);
+//             isJumpPressed = true;
 //         }
 
-//         if (isJumpPressed)
+//         if (Input.GetKeyDown(KeyCode.RightControl))
 //         {
-//             rb2d.AddForce(new Vector2(0, jumpForce));
-//             isJumpPressed = false;
-//             ChangeAnimationState(PLAYER_JUMP);
-//             Debug.Log("nhay ne");
+//             isAttackPressed = true;
 //         }
-//         else if (isAttackPressed)
+//         JumpFall();
+//     }
+
+//     private void FixedUpdate()
+//     {
+//         Vector2 vel = new Vector2(0, rb2d.velocity.y);
+
+//         if (xAxis < 0)
 //         {
-//             ChangeAnimationState(PLAYER_ATTACK);
-//             isAttacking = true;
-//             Invoke("AttackComplete", attackDelay);
+//             // if (!isAttacking)
+//             // {
+//             vel.x = -walkSpeed;
+//             transform.localScale = new Vector2(-1, 1);
+//             // }
 //         }
-//         else if (Mathf.Abs(xAxis) > 0.1f)
+//         else if (xAxis > 0)
 //         {
-//             ChangeAnimationState(PLAYER_RUN);
+//             // if (!isAttacking)
+//             // {
+//             vel.x = walkSpeed;
+//             transform.localScale = new Vector2(1, 1);
+//             // }
 //         }
 //         else
 //         {
-//             ChangeAnimationState(PLAYER_IDLE);
-//         }
-//     }
+//             vel.x = 0;
 
-//     void FixedUpdate()
-//     {
-//         float xAxis = Input.GetAxisRaw("Horizontal");
-//         Vector2 vel = new Vector2(xAxis * walkSpeed, rb2d.velocity.y);
+//         }
+
+//         if (isGrounded && !isAttacking && !isJumpPressed)
+//         {
+//             if (xAxis != 0)
+//             {
+//                 ChangeAnimationState(PLAYER_RUN);
+//             }
+//             else
+//             {
+//                 ChangeAnimationState(PLAYER_IDLE);
+//             }
+//         }
+
+
+//         if (isAttackPressed)
+//         {
+//             isAttackPressed = false;
+//             if (!isAttacking)
+//             {
+//                 isAttacking = true;
+//                 if (isGrounded)
+//                 {
+//                     ChangeAnimationState(PLAYER_ATTACK);
+//                     Collider2D[] hitEnimies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+//                     foreach (Collider2D enemy in hitEnimies)
+//                     {
+//                         Debug.Log("we hit " + enemy.name);
+//                         enemy.GetComponent<MobController>().TakeDamage(attackDamage);
+//                     }
+
+
+//                 }
+//                 Invoke("AttackComplete", attackDelay);
+//             }
+//         }
+
 //         rb2d.velocity = vel;
 //     }
 
+//     //check attack complete
 //     void AttackComplete()
 //     {
 //         isAttacking = false;
 //     }
 
+//     //change animation
 //     void ChangeAnimationState(string newAnimation)
 //     {
 //         if (animator.GetCurrentAnimatorStateInfo(0).IsName(newAnimation)) return;
 //         animator.Play(newAnimation);
 //     }
-// }
 
-
-
-
-// [SerializeField]
-// private float walkSpeed = 5f;
-
-// private Animator animator;
-
-// private float xAxis;
-// private float yAxis;
-// private Rigidbody2D rb2d;
-// private bool isJumpPressed;
-// private float jumpForce = 600;
-// private int groundMask;
-// private bool isGrounded;
-// private string currentAnimaton;
-// private bool isAttackPressed;
-// private bool isAttacking;
-
-// [SerializeField]
-// private float attackDelay = 0.3f;
-
-// //Animation States
-// const string PLAYER_IDLE = "Player_Idle";
-// const string PLAYER_RUN = "Player_Run";
-// const string PLAYER_JUMP = "Player_Jumping";
-// const string PLAYER_ATTACK = "Player_Attack";
-
-// //=====================================================
-// // Start is called before the first frame update
-// //=====================================================
-// void Start()
-// {
-//     rb2d = GetComponent<Rigidbody2D>();
-//     animator = GetComponent<Animator>();
-//     groundMask = 1 << LayerMask.NameToLayer("Ground");
-
-// }
-
-// //=====================================================
-// // Update is called once per frame
-// //=====================================================
-// void Update()
-// {
-//     //Checking for inputs
-//     xAxis = Input.GetAxisRaw("Horizontal");
-
-//     //space jump key pressed?
-//     if (Input.GetKeyDown(KeyCode.Space))
+//     //check Ground
+//     private void OnTriggerEnter2D(Collider2D other)
 //     {
-//         isJumpPressed = true;
-//     }
-
-//     //space Atatck key pressed?
-//     if (Input.GetKeyDown(KeyCode.RightControl))
-//     {
-//         isAttackPressed = true;
-//     }
-// }
-
-// //=====================================================
-// // Physics based time step loop
-// //=====================================================
-// private void FixedUpdate()
-// {
-//     //check if player is on the ground
-//     RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, groundMask);
-
-//     if (hit.collider != null)
-//     {
-//         isGrounded = true;
-//     }
-//     else
-//     {
-//         isGrounded = false;
-//     }
-
-//     //------------------------------------------
-
-//     //Check update movement based on input
-//     Vector2 vel = new Vector2(0, rb2d.velocity.y);
-
-//     if (xAxis < 0)
-//     {
-//         vel.x = -walkSpeed;
-//         transform.localScale = new Vector2(-1, 1);
-//     }
-//     else if (xAxis > 0)
-//     {
-//         vel.x = walkSpeed;
-//         transform.localScale = new Vector2(1, 1);
-
-//     }
-//     else
-//     {
-//         vel.x = 0;
-
-//     }
-
-//     if (isGrounded && !isAttacking)
-//     {
-//         if (xAxis != 0)
+//         if (other.gameObject.tag == "Ground")
 //         {
-//             ChangeAnimationState(PLAYER_RUN);
-//         }
-//         else
-//         {
-//             ChangeAnimationState(PLAYER_IDLE);
+//             isGrounded = true;
 //         }
 //     }
-//     //------------------------------------------
 
-//     //Check if trying to jump 
-//     if (isJumpPressed && isGrounded)
+//     //check Ground
+//     private void OnTriggerExit2D(Collider2D other)
 //     {
-//         rb2d.AddForce(new Vector2(0, jumpForce));
-//         isJumpPressed = false;
-//         ChangeAnimationState(PLAYER_JUMP);
-//     }
-
-//     //assign the new velocity to the rigidbody
-//     rb2d.velocity = vel;
-
-
-//     //attack
-//     if (isAttackPressed)
-//     {
-//         isAttackPressed = false;
-
-//         if (!isAttacking)
+//         if (other.gameObject.tag == "Ground")
 //         {
-//             isAttacking = true;
-
-//             if (isGrounded)
-//             {
-//                 ChangeAnimationState(PLAYER_ATTACK);
-//             }
-//             // else
-//             // {
-//             //     ChangeAnimationState(PLAYER_AIR_ATTACK);
-//             // }
-
-//             Invoke("AttackComplete", attackDelay);
+//             isGrounded = false;
 //         }
 //     }
+
+//     //attack point
+//   private void OnDrawGizmosSelected()
+// {
+//     if (attackPoint == null) return;
+
+//     // Đặt màu gizmo
+//     Gizmos.color = Color.red;
+
+//     // Vẽ hình tròn tại attackPoint với attackRange
+//     Gizmos.DrawWireSphere(attackPoint.position, attackRange);
 // }
 
-// void AttackComplete()
-// {
-//     isAttacking = false;
-// }
+//     void JumpFall()
+//     {
+//         if (isJumpPressed && isGrounded)
+//         {
+//             Debug.Log("Press Jump" + isJumpPressed);
+//             // ChangeAnimationState(PLAYER_JUMP);
+//             rb2d.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+//             animator.SetBool("IsJumping", true);
+//             isJumpPressed = false;
+//         }
+//         if (!isGrounded)
+//         {
+//             // Debug.Log("Press Jump: " + isJumpPressed);
+//             Debug.Log("Ground falling: " + isGrounded);
+//             animator.SetBool("IsFalling", true);
+//             animator.SetBool("IsJumping", false);
+//         }
+//     }
 
-// //=====================================================
-// // mini animation manager
-// //=====================================================
-// void ChangeAnimationState(string newAnimation)
-// {
-//     if (currentAnimaton == newAnimation) return;
+//     public void TakeDamage(int damage)
+//     {
+//         Debug.Log("damage: " + damage);
+//         currentPlayerHealth -= damage;
+//         Debug.Log("currentPlayerHealth: " + currentPlayerHealth);
+//         ChangeAnimationState(PLAYER_HURT);
+//         if (currentPlayerHealth <= 0)
+//         {
+//             Die();
+//         }
+//     }
 
-//     animator.Play(newAnimation);
-//     currentAnimaton = newAnimation;
+//     private void Die()
+//     {
+//         // animator.SetBool("IsDie", true);
+//         ChangeAnimationState(PLAYER_DEAD);
+//         GetComponent<Collider2D>().enabled = false;
+//         this.enabled = false;
+//         // GetComponent<SpriteRenderer>().enabled = false;
+//         Debug.Log("Player die");
+//     }
+
 // }
