@@ -124,19 +124,19 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Attack
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Death
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a20939a9c0423d4681a622ffc7c6bab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundToPlay: {fileID: 8300000, guid: 8e027a6d4adba5c4f90beaf5e584eeed, type: 3}
+  soundToPlay: {fileID: 8300000, guid: 6c1bd459765a7b746830e880497986a3, type: 3}
   volume: 1
   playOnEnter: 1
   playOnExit: 0
